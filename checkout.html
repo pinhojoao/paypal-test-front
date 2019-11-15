@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title>PayPal Store</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="/assets/css/paypal-store.css">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="/">Home</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <ul class="navbar-nav navbar-right ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/cart.html">Cart(<span id="cart-itens"></span>)</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="container">
+            <h1>Checkout</h1>
+            <div class="row">
+                <div class="col-4">
+                    <h2>Order</h2>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">Product</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart-product-list-checkout">
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th id="total_qty"></th>
+                                <th></th>
+                                <th id="total_final"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="col-8">
+                    <form>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="first_name">First Name</label>
+                                <input type="text" class="form-control" id="first_name">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="last_name">Last Name</label>
+                                <input type="text" class="form-control" id="last_name">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="email">Email address</label>
+                                <input type="email" class="form-control" id="email">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="phone_number">Phone number</label>
+                                <input type="text" class="form-control" id="phone_number">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="country">Country</label>
+                                <select name="country" id="country" class="form-control">
+                                    <option value="BR">Brazil</option>
+                                    <option value="US">USA</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="zip">Postal code</label>
+                                <input type="text" class="form-control" id="zip">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="state">State</label>
+                                <input type="text" class="form-control" id="state">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="city">City</label>
+                                <input type="text" class="form-control" id="city">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label for="address">Address</label>
+                                <input type="text" class="form-control" id="address">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn" id="paypal-button"></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script   src="https://code.jquery.com/jquery-3.4.1.min.js"   integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="   crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <script src="/assets/js/utils.js"></script>
+        <script src="/assets/js/checkout.js"></script>
+        <script src="https://www.paypalobjects.com/api/checkout.js"></script>
+        <script>
+          paypal.Button.render({
+            env: 'sandbox', // Or 'production'
+            // Set up the payment:
+            // 1. Add a payment callback
+            payment: function(data, actions) {
+              // 2. Make a request to your server
+              return actions.request.post(apiUri + '/checkout')
+                .then(function(res) {
+                  // 3. Return res.id from the response
+                  console.log("Retorno: " + res.id);
+                  return res.id;
+                });
+            },
+            // Execute the payment:
+            // 1. Add an onAuthorize callback
+            onAuthorize: function(data, actions) {
+              // 2. Make a request to your server
+              return actions.request.post(apiUri + '/execute', {
+                paymentID: data.paymentID,
+                payerID:   data.payerID
+              })
+                .then(function(res) {
+                  console.log('Entrou no final do execute');
+              }).catch((err) => {
+                  console.log('Deu erro no execute');
+              });
+            }
+          }, '#paypal-button');
+        </script>
+    </body>
+</html>
