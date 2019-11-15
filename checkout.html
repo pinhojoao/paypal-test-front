@@ -123,7 +123,6 @@
             payment: function(data, actions) {
               // 2. Make a request to your server
               let userData = $('form#user-data-form').serialize();
-              console.log(userData);
               return actions.request.post(apiUri + '/checkout', {data: userData})
                 .then(function(res) {
                   // 3. Return res.id from the response
