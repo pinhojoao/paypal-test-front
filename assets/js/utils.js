@@ -1,4 +1,4 @@
-var apiUri = "http://paypal-api.nxs/api";
+var apiUri = "https://mighty-river-58730.herokuapp.com/api";
 function ajaxCall(method, url, data = null) {
     return new Promise((resolve, reject) => {
         $.ajax({
